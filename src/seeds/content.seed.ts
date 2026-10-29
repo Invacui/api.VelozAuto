@@ -18,6 +18,80 @@ import logger from '../logger/index';
 const slugify = (v: string) => v.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const pic = (seed: string) => `https://picsum.photos/seed/${seed}/1600/700`;
 
+const TERMS_CONTENT = `## 1. Acceptance of terms
+
+By accessing or using Veloz Auto you agree to these terms. If you do not agree, please do not use the platform.
+
+## 2. Our role
+
+Veloz Auto is a marketplace that helps buyers and sellers of used vehicles connect, arrange inspections, and complete transactions. Unless expressly stated, we are not the seller of the vehicle and do not guarantee any vehicle's condition, ownership or suitability.
+
+## 3. Your responsibilities
+
+- Provide accurate, current and complete information in buy and sell requests.
+- Only list vehicles you lawfully own and are entitled to sell.
+- Do not post false, misleading or infringing content.
+- Comply with all applicable Indian laws, including motor-vehicle and tax regulations.
+
+## 4. Listings & pricing
+
+Prices are set by sellers and may change. Displayed figures, including EMI estimates, are indicative and do not constitute a binding offer.
+
+## 5. Inspection & offers
+
+Free inspections and offers are provided as a convenience. An offer becomes binding only when confirmed by both parties in the manner we specify.
+
+## 6. Prohibited conduct
+
+- Attempting to circumvent our fees or processes.
+- Posting vehicles with tampered odometers, documents or histories.
+- Using the platform for unlawful, fraudulent or abusive purposes.
+
+## 7. Limitation of liability
+
+To the maximum extent permitted by law, Veloz Auto is not liable for indirect or consequential losses arising from your use of the platform or any transaction between users.
+
+## 8. Governing law
+
+These terms are governed by the laws of India, and disputes are subject to Indian jurisdiction.`;
+
+const PRIVACY_CONTENT = `## 1. Who we are
+
+Veloz Auto ("we", "our", "us") operates an online marketplace for buying and selling used vehicles in India. This policy explains what personal data we collect, why we collect it, and the choices you have.
+
+## 2. Information we collect
+
+- **Account information** — your name, email address and mobile number, plus a password stored as an encrypted hash.
+- **Buy & sell request information** — vehicle preferences, budget, contact details, ownership documents and inspection details you provide.
+- **Listings & photographs** — vehicle details and images you or our team upload.
+- **Usage data** — device type, browser, pages viewed and referring links, collected via cookies and analytics.
+- **Communications** — messages you send through live chat, support or contact forms.
+
+## 3. How we use your information
+
+- Respond to buy and sell requests and connect buyers with sellers.
+- Schedule inspections, test drives and valuations.
+- Verify ownership and support ownership transfer paperwork.
+- Improve our listings, search and recommendations.
+- Send service messages and, with your consent, marketing communications.
+- Comply with legal obligations and prevent fraud.
+
+## 4. Sharing your information
+
+We share limited details with sellers, inspection partners, financiers and payment providers only as needed to deliver the service you request. We never sell your personal data.
+
+## 5. Data retention & security
+
+We retain personal data for as long as your account is active or as needed to meet legal and accounting requirements. We apply industry-standard safeguards, but no method of transmission over the internet is fully secure.
+
+## 6. Your rights
+
+You may access, correct or delete your personal data, or withdraw consent, by contacting us. You can update most details from your account profile at any time.
+
+## 7. Contact us
+
+For privacy questions, email us at the address listed on our contact page.`;
+
 const BANNERS = [
   { title: 'Buy your next car with confidence', subtitle: '200-point inspected used cars with warranty', image: pic('vm-hero-1'), link: '/vehicles?category=PASSENGER_CAR', position: 'HERO', sortOrder: 1 },
   { title: 'Sell your vehicle in 24 hours', subtitle: 'Free doorstep inspection, instant payment', image: pic('vm-hero-2'), link: '/sell', position: 'HERO', sortOrder: 2 },
@@ -127,29 +201,47 @@ export const runContentSeed = async (): Promise<void> => {
     }
   }
 
-  // Site settings (singleton)
+  // Site settings (singleton) — always sync the contact + social fields so a
+  // stale/placeholder document is corrected the next time seeds run.
+  const SITE_SETTINGS = {
+    phone: '+91 99380 92860',
+    whatsapp: '919938092860',
+    address: 'Moosapet, Hyderabad, Telangana, India',
+    facebook: 'https://www.facebook.com/profile.php?id=61583277775696',
+    instagram: 'https://www.instagram.com/velozauto_offical',
+    linkedin: 'https://www.linkedin.com/company/edoorsteps.com/',
+  };
   const existingSettings = await SiteSetting.findOne();
   if (!existingSettings) {
     await SiteSetting.create({
       siteName: 'VehicleMarket',
       tagline: 'Buy & sell used vehicles across India — inspected, fair & fast.',
-      phone: '+91 90000 00000',
       email: 'care@vehiclemarket.in',
-      whatsapp: '919000000000',
-      address: 'VehicleMarket HQ, MG Road, Bengaluru, Karnataka 560001, India',
       workingHours: 'Mon–Sat, 9:00 AM – 7:00 PM IST',
-      facebook: 'https://facebook.com/vehiclemarket',
-      instagram: 'https://instagram.com/vehiclemarket',
-      twitter: 'https://twitter.com/vehiclemarket',
-      youtube: 'https://youtube.com/@vehiclemarket',
-      linkedin: 'https://linkedin.com/company/vehiclemarket',
+      ...SITE_SETTINGS,
       defaultMeta: {
         title: 'VehicleMarket — Buy & Sell Used Vehicles in India',
         description: 'Buy inspected used cars, bikes, commercial vehicles and caravans. Sell your vehicle in 24 hours with free doorstep inspection.',
         image: pic('vm-og-default'),
       },
       footerText: 'VehicleMarket is a pre-owned vehicle marketplace connecting buyers and sellers across India with inspections, fair pricing and end-to-end documentation support.',
+      termsContent: TERMS_CONTENT,
+      privacyContent: PRIVACY_CONTENT,
+      legalUpdatedAt: new Date('2026-10-10T00:00:00.000Z'),
     });
+  } else {
+    // Legal copy is only filled in when missing so admin edits are never
+    // overwritten by a later seed run.
+    const settingsUpdate: Record<string, any> = {
+      $set: { ...SITE_SETTINGS },
+      $unset: { twitter: '' },
+    };
+    if (!existingSettings.termsContent) settingsUpdate.$set.termsContent = TERMS_CONTENT;
+    if (!existingSettings.privacyContent) settingsUpdate.$set.privacyContent = PRIVACY_CONTENT;
+    if (!existingSettings.legalUpdatedAt) {
+      settingsUpdate.$set.legalUpdatedAt = new Date('2026-10-10T00:00:00.000Z');
+    }
+    await SiteSetting.findByIdAndUpdate(existingSettings._id, settingsUpdate);
   }
 
   // SEO settings

@@ -75,7 +75,7 @@ paths[`${API}/auth/register`] = { post: {
   responses: { 201: created('AuthResult'), ...E(409, 500) },
 }};
 paths[`${API}/auth/login`] = { post: {
-  tags: ['Auth'], summary: 'Login with email and password', security: publicReq,
+  tags: ['Auth'], summary: 'Login with email and password (optional phone to store/update)', security: publicReq,
   requestBody: jsonBody(ref('LoginInput'), true),
   responses: { 200: ok('AuthResult'), ...E(401, 403, 500) },
 }};
@@ -435,7 +435,7 @@ const schemas = {
 
   // Auth
   RegisterInput: { type: 'object', required: ['name', 'email', 'password'], properties: { name: { type: 'string', minLength: 2 }, email: { type: 'string', format: 'email' }, phone: { type: 'string', pattern: '^[6-9]\\d{9}$' }, password: { type: 'string', minLength: 8 } } },
-  LoginInput: { type: 'object', required: ['email', 'password'], properties: { email: { type: 'string', format: 'email' }, password: { type: 'string' } } },
+  LoginInput: { type: 'object', required: ['email', 'password'], properties: { email: { type: 'string', format: 'email' }, phone: { type: 'string', pattern: '^[6-9]\\d{9}$' }, password: { type: 'string' } } },
   GoogleSignInInput: { type: 'object', required: ['credential'], properties: { credential: { type: 'string' } } },
   SendPhoneOtpInput: { type: 'object', properties: { phone: { type: 'string', pattern: '^[6-9]\\d{9}$' } } },
   VerifyPhoneOtpInput: { type: 'object', required: ['code'], properties: { code: { type: 'string', pattern: '^\\d{6}$' } } },
@@ -624,8 +624,8 @@ const schemas = {
   FaqCategoryInput: { type: 'object', required: ['title'], properties: { title: str, description: str, sortOrder: int, isActive: bool } },
   FaqArticle: { type: 'object', properties: { _id: ID, category: ID, question: str, answer: str, sortOrder: int, isActive: bool } },
   FaqArticleInput: { type: 'object', required: ['category','question','answer'], properties: { category: ID, question: str, answer: str, sortOrder: int, isActive: bool } },
-  SiteSetting: { type: 'object', properties: { _id: ID, siteName: str, tagline: NullableStr, phone: NullableStr, email: NullableStr, whatsapp: NullableStr, address: NullableStr, workingHours: NullableStr, facebook: NullableStr, instagram: NullableStr, twitter: NullableStr, youtube: NullableStr, linkedin: NullableStr, defaultMeta: { type: 'object', properties: { title: str, description: str, image: str } }, footerText: NullableStr } },
-  SiteSettingInput: { type: 'object', properties: { siteName: str, tagline: str, phone: str, email: str, whatsapp: str, address: str, workingHours: str, facebook: str, instagram: str, twitter: str, youtube: str, linkedin: str, defaultMeta: { type: 'object', properties: { title: str, description: str, image: str } }, footerText: str } },
+  SiteSetting: { type: 'object', properties: { _id: ID, siteName: str, tagline: NullableStr, phone: NullableStr, email: NullableStr, whatsapp: NullableStr, address: NullableStr, workingHours: NullableStr, facebook: NullableStr, instagram: NullableStr, twitter: NullableStr, youtube: NullableStr, linkedin: NullableStr, defaultMeta: { type: 'object', properties: { title: str, description: str, image: str } }, footerText: NullableStr, termsContent: NullableStr, privacyContent: NullableStr, legalUpdatedAt: { type: 'string', format: 'date-time', nullable: true } } },
+  SiteSettingInput: { type: 'object', properties: { siteName: str, tagline: str, phone: str, email: str, whatsapp: str, address: str, workingHours: str, facebook: str, instagram: str, twitter: str, youtube: str, linkedin: str, defaultMeta: { type: 'object', properties: { title: str, description: str, image: str } }, footerText: str, termsContent: str, privacyContent: str, legalUpdatedAt: { type: 'string', format: 'date-time' } } },
   SeoSetting: { type: 'object', properties: { _id: ID, path: str, title: NullableStr, description: NullableStr, keywords: strArr, ogImage: NullableStr, canonical: NullableStr, noindex: bool, jsonLd: { type: 'object', nullable: true }, lastmod: date } },
   SeoSettingInput: { type: 'object', required: ['path'], properties: { path: str, title: str, description: str, keywords: strArr, ogImage: str, canonical: str, noindex: bool, jsonLd: { type: 'object' } } },
   Contact: { type: 'object', properties: { _id: ID, name: str, email: str, phone: NullableStr, subject: str, message: str, status: { type: 'string', enum: ['NEW','IN_PROGRESS','RESOLVED'] }, adminNotes: NullableStr, createdAt: date } },

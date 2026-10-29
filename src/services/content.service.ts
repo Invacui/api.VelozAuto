@@ -172,7 +172,13 @@ export const updateContact = async (id: string, data: Record<string, any>) => {
 
 export const getSiteSettings = () => siteSettingDao.getSingleton();
 
-export const updateSiteSettings = async (data: Record<string, any>) => siteSettingDao.updateSingleton(data);
+export const updateSiteSettings = async (data: Record<string, any>) => {
+  const payload = { ...data };
+  if ('termsContent' in data || 'privacyContent' in data) {
+    payload.legalUpdatedAt = new Date();
+  }
+  return siteSettingDao.updateSingleton(payload);
+};
 
 // =====================
 // SEO settings

@@ -25,6 +25,7 @@ export const registerSchema = Joi.object({
 export const loginSchema = Joi.object({
   email: Joi.string().email().lowercase().trim().required(),
   password: Joi.string().required(),
+  phone: phoneSchema.optional(),
 });
 
 export const googleSchema = Joi.object({

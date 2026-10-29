@@ -12,13 +12,21 @@ import envConfig from '../config/environment';
 import logger from '../logger/index';
 
 const ACCOUNTS = [
-  { name: 'Platform Admin', email: 'admin@vehiclemarket.in', phone: '9000000001', password: 'Admin@123', role: 'ADMIN' as const },
+  { name: 'Platform Admin', email: 'admin@velozauto.in', phone: '9000000001', password: 'Admin@123', role: 'ADMIN' as const },
   { name: 'Support Employee', email: 'employee@vehiclemarket.in', phone: '9000000002', password: 'Employee@123', role: 'EMPLOYEE' as const },
   { name: 'Demo User', email: 'user@vehiclemarket.in', phone: '9000000003', password: 'User@12345', role: 'USER' as const },
 ];
 
 export const runAdminSeed = async (): Promise<void> => {
   const { adminEmail } = envConfig.getAdminConfig();
+
+  // Migrate the legacy admin email to the Veloz Auto domain.
+  const legacyAdmin = await User.findOne({ email: 'admin@vehiclemarket.in' });
+  if (legacyAdmin && !(await User.findOne({ email: 'admin@velozauto.in' }))) {
+    legacyAdmin.email = 'admin@velozauto.in';
+    await legacyAdmin.save();
+    logger.info('Migrated admin email: admin@vehiclemarket.in -> admin@velozauto.in');
+  }
 
   for (const acct of ACCOUNTS) {
     const email = acct.email.toLowerCase();

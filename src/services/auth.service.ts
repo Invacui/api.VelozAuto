@@ -144,7 +144,7 @@ export const register = async (
 // Login
 // =====================
 
-export const login = async (email: string, password: string): Promise<AuthResult> => {
+export const login = async (email: string, password: string, phone?: string): Promise<AuthResult> => {
   const user = await userDao.findByEmailWithPassword(email);
   if (!user || !user.passwordHash) {
     throw new AppError('Invalid email or password.', 401);
@@ -158,7 +158,29 @@ export const login = async (email: string, password: string): Promise<AuthResult
     throw new AppError('Invalid email or password.', 401);
   }
 
-  return issueAuthResult(user);
+  // Customers can supply/update their mobile number at login. WhatsApp OTP
+  // verification is disabled until Meta is configured, so we only validate
+  // the number format and uniqueness here and leave phoneVerified pending.
+  let authenticated = user;
+  if (phone && user.role === 'USER') {
+    const normalizedPhone = normalizePhone(phone);
+    if (!isValidIndianPhone(normalizedPhone)) {
+      throw new AppError('Enter a valid 10-digit Indian mobile number.', 400);
+    }
+    const owner = await userDao.findByPhone(normalizedPhone);
+    if (owner && String(owner._id) !== String(user._id)) {
+      throw new AppError('This phone number is already in use.', 409);
+    }
+    if (normalizePhone(user.phone || '') !== normalizedPhone) {
+      authenticated =
+        (await userDao.updateById(String(user._id), {
+          phone: normalizedPhone,
+          phoneVerified: false,
+        })) || user;
+    }
+  }
+
+  return issueAuthResult(authenticated);
 };
 
 // =====================

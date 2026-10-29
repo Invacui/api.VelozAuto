@@ -23,6 +23,9 @@ export interface ISiteSetting {
   linkedin?: string;
   defaultMeta: { title?: string; description?: string; image?: string };
   footerText?: string;
+  termsContent?: string;
+  privacyContent?: string;
+  legalUpdatedAt?: Date;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -53,6 +56,9 @@ const SiteSettingSchema = new Schema<ISiteSetting>(
       default: () => ({}),
     },
     footerText: { type: String, trim: true, maxlength: 1000 },
+    termsContent: { type: String, maxlength: 100000 },
+    privacyContent: { type: String, maxlength: 100000 },
+    legalUpdatedAt: { type: Date },
   },
   { timestamps: true, strict: true }
 );

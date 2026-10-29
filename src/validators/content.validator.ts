@@ -95,6 +95,9 @@ export const updateSiteSettingSchema = Joi.object({
     image: optionalStr(1000),
   }).optional(),
   footerText: optionalStr(1000),
+  termsContent: optionalStr(100000),
+  privacyContent: optionalStr(100000),
+  legalUpdatedAt: Joi.date().iso().optional().allow(null),
 }).min(1);
 
 // ---- SEO settings ----

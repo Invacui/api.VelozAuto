@@ -52,7 +52,7 @@ beforeAll(async () => {
   User = (await import('../../models/User.model')).default;
   const Brand = (await import('../../models/Brand.model')).default;
 
-  await User.create({ name: 'Admin', email: 'admin@vehiclemarket.in', passwordHash: 'Admin@123', role: 'ADMIN', phone: '9000000001' });
+  await User.create({ name: 'Admin', email: 'admin@velozauto.in', passwordHash: 'Admin@123', role: 'ADMIN', phone: '9000000001' });
   const brand = await Brand.create({ name: 'Maruti Suzuki', slug: 'maruti-suzuki', categories: ['PASSENGER_CAR'], isActive: true });
   brandId = String(brand._id);
 });
@@ -98,13 +98,13 @@ describe('Auth', () => {
   });
 
   it('logs in the admin', async () => {
-    const res = await request(app).post(`${API}/auth/login`).send({ email: 'admin@vehiclemarket.in', password: 'Admin@123' });
+    const res = await request(app).post(`${API}/auth/login`).send({ email: 'admin@velozauto.in', password: 'Admin@123' });
     expect(res.status).toBe(200);
     adminToken = res.body.data.accessToken;
   });
 
   it('rejects a wrong password (401)', async () => {
-    const res = await request(app).post(`${API}/auth/login`).send({ email: 'admin@vehiclemarket.in', password: 'nope' });
+    const res = await request(app).post(`${API}/auth/login`).send({ email: 'admin@velozauto.in', password: 'nope' });
     expect(res.status).toBe(401);
   });
 

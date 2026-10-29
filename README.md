@@ -52,7 +52,7 @@ The environment file used is chosen by `NODE_ENV` from `environment/<NODE_ENV>.e
 
 | Role | Email | Password |
 | --- | --- | --- |
-| ADMIN | `admin@vehiclemarket.in` | `Admin@123` |
+| ADMIN | `admin@velozauto.in` | `Admin@123` |
 | EMPLOYEE | `employee@vehiclemarket.in` | `Employee@123` |
 | USER | `user@vehiclemarket.in` | `User@12345` |
 

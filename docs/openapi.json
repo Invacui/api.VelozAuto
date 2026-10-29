@@ -127,7 +127,7 @@
         "tags": [
           "Auth"
         ],
-        "summary": "Login with email and password",
+        "summary": "Login with email and password (optional phone to store/update)",
         "security": [],
         "requestBody": {
           "required": true,
@@ -9298,6 +9298,10 @@
             "type": "string",
             "format": "email"
           },
+          "phone": {
+            "type": "string",
+            "pattern": "^[6-9]\\d{9}$"
+          },
           "password": {
             "type": "string"
           }
@@ -12045,6 +12049,19 @@
           "footerText": {
             "type": "string",
             "nullable": true
+          },
+          "termsContent": {
+            "type": "string",
+            "nullable": true
+          },
+          "privacyContent": {
+            "type": "string",
+            "nullable": true
+          },
+          "legalUpdatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           }
         }
       },
@@ -12103,6 +12120,16 @@
           },
           "footerText": {
             "type": "string"
+          },
+          "termsContent": {
+            "type": "string"
+          },
+          "privacyContent": {
+            "type": "string"
+          },
+          "legalUpdatedAt": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
