@@ -48,12 +48,12 @@ export const getSimilar = asyncHandler(async (req: AuthenticatedRequest, res: Re
 // ---------- Admin / Employee ----------
 
 export const adminList = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { data, totalItems, page, limit } = await vehicleService.listAdminVehicles(req.query);
+  const { data, totalItems, page, limit } = await vehicleService.listAdminVehicles(req.query, req.user!);
   successResponse(res, data, 'Vehicles fetched', 200, buildPagination(page, limit, totalItems));
 });
 
 export const adminGetById = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const vehicle = await vehicleService.getStaffById(req.params.id);
+  const vehicle = await vehicleService.getStaffById(req.params.id, req.user!);
   successResponse(res, vehicle, 'Vehicle fetched');
 });
 
@@ -63,34 +63,34 @@ export const create = asyncHandler(async (req: AuthenticatedRequest, res: Respon
 });
 
 export const update = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const vehicle = await vehicleService.updateVehicle(req.params.id, req.body);
+  const vehicle = await vehicleService.updateVehicle(req.params.id, req.body, req.user!);
   successResponse(res, vehicle, 'Vehicle updated successfully');
 });
 
 export const updateStatus = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const vehicle = await vehicleService.updateStatus(req.params.id, req.body.status);
+  const vehicle = await vehicleService.updateStatus(req.params.id, req.body.status, req.user!);
   successResponse(res, vehicle, 'Vehicle status updated');
 });
 
 export const remove = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const result = await vehicleService.deleteVehicle(req.params.id);
+  const result = await vehicleService.deleteVehicle(req.params.id, req.user!);
   successResponse(res, result, 'Vehicle deleted');
 });
 
 export const addImages = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const files = (req.files as Express.Multer.File[]) || [];
   const tags = req.body.tags ? String(req.body.tags).split(',') : [];
-  const vehicle = await vehicleService.addImages(req.params.id, files, tags);
+  const vehicle = await vehicleService.addImages(req.params.id, files, tags, req.user!);
   createdResponse(res, vehicle, 'Images uploaded successfully');
 });
 
 export const addImagesByUrl = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const vehicle = await vehicleService.addImagesByUrl(req.params.id, req.body.images);
+  const vehicle = await vehicleService.addImagesByUrl(req.params.id, req.body.images, req.user!);
   createdResponse(res, vehicle, 'Images added successfully');
 });
 
 export const removeImage = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const vehicle = await vehicleService.removeImage(req.params.id, req.params.imageId);
+  const vehicle = await vehicleService.removeImage(req.params.id, req.params.imageId, req.user!);
   successResponse(res, vehicle, 'Image removed');
 });
 

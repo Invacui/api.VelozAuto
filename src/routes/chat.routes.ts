@@ -20,7 +20,7 @@ import {
 import { idParamSchema } from '../validators/common.validator';
 
 const router = Router();
-const staff = [authenticate, requireRole('ADMIN', 'EMPLOYEE')];
+const staff = [authenticate, requireRole('ADMIN')];
 
 router.use(authenticate);
 

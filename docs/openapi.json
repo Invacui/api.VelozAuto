@@ -2728,7 +2728,7 @@
         "tags": [
           "Buy Requests"
         ],
-        "summary": "List buy requests (admin/employee)",
+        "summary": "List buy requests (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -2941,7 +2941,7 @@
         "tags": [
           "Buy Requests"
         ],
-        "summary": "Get a buy request by id (admin/employee)",
+        "summary": "Get a buy request by id (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -3028,7 +3028,7 @@
         "tags": [
           "Buy Requests"
         ],
-        "summary": "Update buy request status / assign / add note (admin/employee)",
+        "summary": "Update buy request status / assign / add note (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -3199,7 +3199,7 @@
         "tags": [
           "Sell Requests"
         ],
-        "summary": "List sell requests (admin/employee)",
+        "summary": "List sell requests (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -3485,7 +3485,7 @@
         "tags": [
           "Sell Requests"
         ],
-        "summary": "Get a sell request by id (admin/employee)",
+        "summary": "Get a sell request by id (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -3572,7 +3572,7 @@
         "tags": [
           "Sell Requests"
         ],
-        "summary": "Advance pipeline / set offer / inspection / notes (admin/employee)",
+        "summary": "Advance pipeline / set offer / inspection / notes (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -4106,7 +4106,7 @@
         "tags": [
           "Master"
         ],
-        "summary": "Create a brand (admin/employee)",
+        "summary": "Create a brand (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -4204,7 +4204,7 @@
         "tags": [
           "Master"
         ],
-        "summary": "Update a brand (admin/employee)",
+        "summary": "Update a brand (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -4311,7 +4311,7 @@
         "tags": [
           "Master"
         ],
-        "summary": "Delete a brand (admin/employee)",
+        "summary": "Delete a brand (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -4470,7 +4470,7 @@
         "tags": [
           "Master"
         ],
-        "summary": "Create a vehicle model (admin/employee)",
+        "summary": "Create a vehicle model (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -4568,7 +4568,7 @@
         "tags": [
           "Master"
         ],
-        "summary": "Update a vehicle model (admin/employee)",
+        "summary": "Update a vehicle model (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -4675,7 +4675,7 @@
         "tags": [
           "Master"
         ],
-        "summary": "Delete a vehicle model (admin/employee)",
+        "summary": "Delete a vehicle model (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -4834,7 +4834,7 @@
         "tags": [
           "Master"
         ],
-        "summary": "Create a location (admin/employee)",
+        "summary": "Create a location (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -4932,7 +4932,7 @@
         "tags": [
           "Master"
         ],
-        "summary": "Update a location (admin/employee)",
+        "summary": "Update a location (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -5039,7 +5039,7 @@
         "tags": [
           "Master"
         ],
-        "summary": "Delete a location (admin/employee)",
+        "summary": "Delete a location (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -5198,7 +5198,7 @@
         "tags": [
           "Master"
         ],
-        "summary": "Create a feature (admin/employee)",
+        "summary": "Create a feature (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -5296,7 +5296,7 @@
         "tags": [
           "Master"
         ],
-        "summary": "Update a feature (admin/employee)",
+        "summary": "Update a feature (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -5403,7 +5403,7 @@
         "tags": [
           "Master"
         ],
-        "summary": "Delete a feature (admin/employee)",
+        "summary": "Delete a feature (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -5555,7 +5555,7 @@
         "tags": [
           "Chat"
         ],
-        "summary": "List all tickets (admin/employee)",
+        "summary": "List all tickets (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -5826,7 +5826,7 @@
         "tags": [
           "Chat"
         ],
-        "summary": "Update ticket status / assign (admin/employee)",
+        "summary": "Update ticket status / assign (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -6403,7 +6403,7 @@
         "tags": [
           "Admin"
         ],
-        "summary": "List users (admin/employee)",
+        "summary": "List users (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -6534,7 +6534,7 @@
         "tags": [
           "Admin"
         ],
-        "summary": "Get a user by id (admin/employee)",
+        "summary": "Get a user by id (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -7031,7 +7031,7 @@
         "tags": [
           "Content"
         ],
-        "summary": "Create a banner (admin/employee)",
+        "summary": "Create a banner (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -7119,7 +7119,7 @@
         "tags": [
           "Content"
         ],
-        "summary": "Update a banner (admin/employee)",
+        "summary": "Update a banner (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -7226,7 +7226,7 @@
         "tags": [
           "Content"
         ],
-        "summary": "Delete a banner (admin/employee)",
+        "summary": "Delete a banner (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -7358,7 +7358,7 @@
         "tags": [
           "Content"
         ],
-        "summary": "Create a testimonial (admin/employee)",
+        "summary": "Create a testimonial (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -7446,7 +7446,7 @@
         "tags": [
           "Content"
         ],
-        "summary": "Update a testimonial (admin/employee)",
+        "summary": "Update a testimonial (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -7553,7 +7553,7 @@
         "tags": [
           "Content"
         ],
-        "summary": "Delete a testimonial (admin/employee)",
+        "summary": "Delete a testimonial (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -7721,7 +7721,7 @@
         "tags": [
           "Content"
         ],
-        "summary": "Create FAQ category (admin/employee)",
+        "summary": "Create FAQ category (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -7809,7 +7809,7 @@
         "tags": [
           "Content"
         ],
-        "summary": "Update FAQ category (admin/employee)",
+        "summary": "Update FAQ category (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -7916,7 +7916,7 @@
         "tags": [
           "Content"
         ],
-        "summary": "Delete FAQ category (admin/employee)",
+        "summary": "Delete FAQ category (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -8048,7 +8048,7 @@
         "tags": [
           "Content"
         ],
-        "summary": "Create FAQ article (admin/employee)",
+        "summary": "Create FAQ article (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -8136,7 +8136,7 @@
         "tags": [
           "Content"
         ],
-        "summary": "Update FAQ article (admin/employee)",
+        "summary": "Update FAQ article (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -8243,7 +8243,7 @@
         "tags": [
           "Content"
         ],
-        "summary": "Delete FAQ article (admin/employee)",
+        "summary": "Delete FAQ article (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -8847,7 +8847,7 @@
         "tags": [
           "Content"
         ],
-        "summary": "List contact messages (admin/employee)",
+        "summary": "List contact messages (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -8960,7 +8960,7 @@
         "tags": [
           "Content"
         ],
-        "summary": "Update contact status / admin notes (admin/employee)",
+        "summary": "Update contact status / admin notes (admin only)",
         "security": [
           {
             "bearerAuth": []
@@ -9480,6 +9480,13 @@
               "ADMIN"
             ]
           },
+          "isVendor": {
+            "type": "boolean"
+          },
+          "companyName": {
+            "type": "string",
+            "nullable": true
+          },
           "emailVerified": {
             "type": "boolean"
           },
@@ -9505,6 +9512,13 @@
           },
           "isActive": {
             "type": "boolean"
+          },
+          "isVendor": {
+            "type": "boolean"
+          },
+          "companyName": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -9916,6 +9930,33 @@
           "sellerType": {
             "type": "string",
             "nullable": true
+          },
+          "createdBy": {
+            "type": "string",
+            "description": "Mongo ObjectId"
+          },
+          "postedBy": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Mongo ObjectId"
+              },
+              "name": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              },
+              "isVendor": {
+                "type": "boolean"
+              },
+              "companyName": {
+                "type": "string",
+                "nullable": true
+              }
+            }
           },
           "createdAt": {
             "type": "string",

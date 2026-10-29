@@ -22,7 +22,6 @@ import {
 import { idParamSchema } from '../validators/common.validator';
 
 const router = Router();
-const staff = [authenticate, requireRole('ADMIN', 'EMPLOYEE')];
 const admin = [authenticate, requireRole('ADMIN')];
 
 // ---- Public reads ----
@@ -36,26 +35,26 @@ router.get('/seo', contentController.getSeoByPath);
 router.post('/contacts', strictLimiter, validate({ body: createContactSchema }), contentController.createContact);
 
 // ---- Banners (admin) ----
-router.post('/banners', ...staff, validate({ body: createBannerSchema }), contentController.createBanner);
-router.put('/banners/:id', ...staff, validate({ params: idParamSchema, body: updateBannerSchema }), contentController.updateBanner);
-router.delete('/banners/:id', ...staff, validate({ params: idParamSchema }), contentController.deleteBanner);
+router.post('/banners', ...admin, validate({ body: createBannerSchema }), contentController.createBanner);
+router.put('/banners/:id', ...admin, validate({ params: idParamSchema, body: updateBannerSchema }), contentController.updateBanner);
+router.delete('/banners/:id', ...admin, validate({ params: idParamSchema }), contentController.deleteBanner);
 
 // ---- Testimonials (admin) ----
-router.post('/testimonials', ...staff, validate({ body: createTestimonialSchema }), contentController.createTestimonial);
-router.put('/testimonials/:id', ...staff, validate({ params: idParamSchema, body: updateTestimonialSchema }), contentController.updateTestimonial);
-router.delete('/testimonials/:id', ...staff, validate({ params: idParamSchema }), contentController.deleteTestimonial);
+router.post('/testimonials', ...admin, validate({ body: createTestimonialSchema }), contentController.createTestimonial);
+router.put('/testimonials/:id', ...admin, validate({ params: idParamSchema, body: updateTestimonialSchema }), contentController.updateTestimonial);
+router.delete('/testimonials/:id', ...admin, validate({ params: idParamSchema }), contentController.deleteTestimonial);
 
 // ---- FAQ (admin) ----
-router.post('/faq-categories', ...staff, validate({ body: createFaqCategorySchema }), contentController.createFaqCategory);
-router.put('/faq-categories/:id', ...staff, validate({ params: idParamSchema, body: updateFaqCategorySchema }), contentController.updateFaqCategory);
-router.delete('/faq-categories/:id', ...staff, validate({ params: idParamSchema }), contentController.deleteFaqCategory);
-router.post('/faq-articles', ...staff, validate({ body: createFaqArticleSchema }), contentController.createFaqArticle);
-router.put('/faq-articles/:id', ...staff, validate({ params: idParamSchema, body: updateFaqArticleSchema }), contentController.updateFaqArticle);
-router.delete('/faq-articles/:id', ...staff, validate({ params: idParamSchema }), contentController.deleteFaqArticle);
+router.post('/faq-categories', ...admin, validate({ body: createFaqCategorySchema }), contentController.createFaqCategory);
+router.put('/faq-categories/:id', ...admin, validate({ params: idParamSchema, body: updateFaqCategorySchema }), contentController.updateFaqCategory);
+router.delete('/faq-categories/:id', ...admin, validate({ params: idParamSchema }), contentController.deleteFaqCategory);
+router.post('/faq-articles', ...admin, validate({ body: createFaqArticleSchema }), contentController.createFaqArticle);
+router.put('/faq-articles/:id', ...admin, validate({ params: idParamSchema, body: updateFaqArticleSchema }), contentController.updateFaqArticle);
+router.delete('/faq-articles/:id', ...admin, validate({ params: idParamSchema }), contentController.deleteFaqArticle);
 
 // ---- Contacts (admin) ----
-router.get('/contacts', ...staff, validate({ query: listContentQuerySchema }), contentController.listContacts);
-router.patch('/contacts/:id', ...staff, validate({ params: idParamSchema, body: updateContactSchema }), contentController.updateContact);
+router.get('/contacts', ...admin, validate({ query: listContentQuerySchema }), contentController.listContacts);
+router.patch('/contacts/:id', ...admin, validate({ params: idParamSchema, body: updateContactSchema }), contentController.updateContact);
 
 // ---- Site settings (admin) ----
 router.put('/site-settings', ...admin, validate({ body: updateSiteSettingSchema }), contentController.updateSiteSettings);

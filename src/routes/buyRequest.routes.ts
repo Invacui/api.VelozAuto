@@ -33,7 +33,7 @@ router.get('/mine', authenticate, buyRequestController.mine);
 router.get(
   '/',
   authenticate,
-  requireRole('ADMIN', 'EMPLOYEE'),
+  requireRole('ADMIN'),
   validate({ query: listBuyRequestsQuerySchema }),
   buyRequestController.list
 );
@@ -41,7 +41,7 @@ router.get(
 router.get(
   '/:id',
   authenticate,
-  requireRole('ADMIN', 'EMPLOYEE'),
+  requireRole('ADMIN'),
   validate({ params: idParamSchema }),
   buyRequestController.getById
 );
@@ -49,7 +49,7 @@ router.get(
 router.patch(
   '/:id',
   authenticate,
-  requireRole('ADMIN', 'EMPLOYEE'),
+  requireRole('ADMIN'),
   validate({ params: idParamSchema, body: updateBuyRequestSchema }),
   buyRequestController.update
 );

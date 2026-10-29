@@ -20,7 +20,7 @@ import {
 import { idParamSchema } from '../validators/common.validator';
 
 const router = Router();
-const staff = [authenticate, requireRole('ADMIN', 'EMPLOYEE')];
+const staff = [authenticate, requireRole('ADMIN')];
 
 // ---- Public catalogue reads ----
 router.get('/brands', optionalAuthenticate, validate({ query: listMasterQuerySchema }), masterController.listBrands);

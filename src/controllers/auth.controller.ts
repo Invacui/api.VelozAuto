@@ -19,7 +19,12 @@ export const register = asyncHandler(async (req: AuthenticatedRequest, res: Resp
   setAuthCookies(res, result.accessToken, result.refreshToken);
   createdResponse(
     res,
-    { user: result.user, accessToken: result.accessToken, accessTokenExpiresAt: result.accessTokenExpiresAt },
+    {
+      user: result.user,
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      accessTokenExpiresAt: result.accessTokenExpiresAt,
+    },
     'Account created successfully'
   );
 });
@@ -30,7 +35,12 @@ export const login = asyncHandler(async (req: AuthenticatedRequest, res: Respons
   setAuthCookies(res, result.accessToken, result.refreshToken);
   successResponse(
     res,
-    { user: result.user, accessToken: result.accessToken, accessTokenExpiresAt: result.accessTokenExpiresAt },
+    {
+      user: result.user,
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      accessTokenExpiresAt: result.accessTokenExpiresAt,
+    },
     'Logged in successfully'
   );
 });
@@ -40,7 +50,12 @@ export const googleLogin = asyncHandler(async (req: AuthenticatedRequest, res: R
   setAuthCookies(res, result.accessToken, result.refreshToken);
   successResponse(
     res,
-    { user: result.user, accessToken: result.accessToken, accessTokenExpiresAt: result.accessTokenExpiresAt },
+    {
+      user: result.user,
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      accessTokenExpiresAt: result.accessTokenExpiresAt,
+    },
     'Signed in with Google'
   );
 });
@@ -61,7 +76,11 @@ export const refresh = asyncHandler(async (req: AuthenticatedRequest, res: Respo
   if (!token) throw new AppError('Refresh token is required.', 401);
   const result = await authService.refresh(token);
   setAuthCookies(res, result.accessToken, result.refreshToken);
-  successResponse(res, { accessToken: result.accessToken }, 'Token refreshed');
+  successResponse(
+    res,
+    { accessToken: result.accessToken, refreshToken: result.refreshToken },
+    'Token refreshed'
+  );
 });
 
 export const logout = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {

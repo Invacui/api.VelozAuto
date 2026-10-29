@@ -15,6 +15,7 @@ let User: any;
 
 const API = '/api/v1';
 let adminToken = '';
+let adminRefreshToken = '';
 let userToken = '';
 let vehicleId = '';
 let vehicleSlug = '';
@@ -101,6 +102,35 @@ describe('Auth', () => {
     const res = await request(app).post(`${API}/auth/login`).send({ email: 'admin@velozauto.in', password: 'Admin@123' });
     expect(res.status).toBe(200);
     adminToken = res.body.data.accessToken;
+    adminRefreshToken = res.body.data.refreshToken;
+    expect(adminRefreshToken).toBeTruthy();
+  });
+
+  it('returns a rotated refresh token and invalidates the old one', async () => {
+    const first = await request(app)
+      .post(`${API}/auth/refresh`)
+      .send({ refreshToken: adminRefreshToken });
+    expect(first.status).toBe(200);
+    expect(first.body.data.refreshToken).toBeTruthy();
+    expect(first.body.data.refreshToken).not.toBe(adminRefreshToken);
+
+    const reusedOld = await request(app)
+      .post(`${API}/auth/refresh`)
+      .send({ refreshToken: adminRefreshToken });
+    expect(reusedOld.status).toBe(401);
+
+    const second = await request(app)
+      .post(`${API}/auth/refresh`)
+      .send({ refreshToken: first.body.data.refreshToken });
+    expect(second.status).toBe(200);
+    expect(second.body.data.accessToken).toBeTruthy();
+  });
+
+  it('logs in the admin with a mobile number', async () => {
+    const res = await request(app).post(`${API}/auth/login`).send({ phone: '9000000001', password: 'Admin@123' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.accessToken).toBeDefined();
+    expect(res.body.data.user.email).toBe('admin@velozauto.in');
   });
 
   it('rejects a wrong password (401)', async () => {
@@ -269,6 +299,89 @@ describe('RBAC on admin routes', () => {
     const res = await request(app).get(`${API}/admin/dashboard`).set('Authorization', `Bearer ${adminToken}`);
     expect(res.status).toBe(200);
     expect(res.body.data.vehicles).toBeDefined();
+  });
+});
+
+describe('Vendor employee RBAC', () => {
+  let employeeToken = '';
+  let employeeVehicleId = '';
+
+  beforeAll(async () => {
+    await User.create({
+      name: 'Vendor One',
+      email: 'vendor@velozauto.in',
+      phone: '9876500010',
+      passwordHash: 'Vendor@123',
+      role: 'EMPLOYEE',
+      isVendor: true,
+      companyName: 'Velo Motors',
+    });
+    const login = await request(app)
+      .post(`${API}/auth/login`)
+      .send({ email: 'vendor@velozauto.in', password: 'Vendor@123' });
+    expect(login.status).toBe(200);
+    expect(login.body.data.user.isVendor).toBe(true);
+    expect(login.body.data.user.companyName).toBe('Velo Motors');
+    employeeToken = login.body.data.accessToken;
+  });
+
+  it('lets an employee create a vehicle and exposes posted-by to admins', async () => {
+    const created = await request(app)
+      .post(`${API}/vehicles`)
+      .set('Authorization', `Bearer ${employeeToken}`)
+      .send(validVehicleBody({ model: 'Vendor Sedan' }));
+    expect(created.status).toBe(201);
+    employeeVehicleId = created.body.data.id;
+
+    const employeeList = await request(app)
+      .get(`${API}/vehicles/admin/all?limit=50`)
+      .set('Authorization', `Bearer ${employeeToken}`);
+    expect(employeeList.status).toBe(200);
+    expect(employeeList.body.data).toHaveLength(1);
+    expect(employeeList.body.data[0].id).toBe(employeeVehicleId);
+
+    const adminList = await request(app)
+      .get(`${API}/vehicles/admin/all?limit=50`)
+      .set('Authorization', `Bearer ${adminToken}`);
+    expect(adminList.status).toBe(200);
+    const posted = adminList.body.data.find((v: any) => v.id === employeeVehicleId);
+    expect(posted).toBeDefined();
+    expect(posted.postedBy.companyName).toBe('Velo Motors');
+    expect(posted.postedBy.isVendor).toBe(true);
+  });
+
+  it('blocks an employee from another vendor vehicle and admin-only modules', async () => {
+    const otherVehicle = await request(app)
+      .get(`${API}/vehicles/admin/${vehicleId}`)
+      .set('Authorization', `Bearer ${employeeToken}`);
+    expect(otherVehicle.status).toBe(403);
+
+    const users = await request(app).get(`${API}/admin/users`).set('Authorization', `Bearer ${employeeToken}`);
+    expect(users.status).toBe(403);
+    const buyRequests = await request(app).get(`${API}/buy-requests`).set('Authorization', `Bearer ${employeeToken}`);
+    expect(buyRequests.status).toBe(403);
+    const notifications = await request(app).get(`${API}/admin/notifications`).set('Authorization', `Bearer ${employeeToken}`);
+    expect(notifications.status).toBe(403);
+  });
+
+  it('requires a company name when promoting a user to vendor employee', async () => {
+    const asha = await User.findOne({ email: 'asha@vehiclemarket.in' });
+    const id = String(asha._id);
+
+    const missingCompany = await request(app)
+      .patch(`${API}/admin/users/${id}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ role: 'EMPLOYEE', isVendor: true });
+    expect(missingCompany.status).toBe(422);
+
+    const promoted = await request(app)
+      .patch(`${API}/admin/users/${id}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ role: 'EMPLOYEE', isVendor: true, companyName: 'Asha Cars' });
+    expect(promoted.status).toBe(200);
+    expect(promoted.body.data.role).toBe('EMPLOYEE');
+    expect(promoted.body.data.isVendor).toBe(true);
+    expect(promoted.body.data.companyName).toBe('Asha Cars');
   });
 });
 

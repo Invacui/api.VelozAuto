@@ -12,8 +12,8 @@ import { AuthenticatedRequest } from '../types';
 import * as adminService from '../services/admin.service';
 import * as notificationService from '../services/notification.service';
 
-export const dashboard = asyncHandler(async (_req: AuthenticatedRequest, res: Response) => {
-  const data = await adminService.getDashboard();
+export const dashboard = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const data = await adminService.getDashboard(req.user!);
   successResponse(res, data, 'Dashboard data fetched');
 });
 

@@ -241,7 +241,7 @@ paths[`${API}/vehicles/:id/images/:imageId`] = { delete: {
 // ===== Buy Requests =====
 paths[`${API}/buy-requests`] = {
   post: { tags: ['Buy Requests'], summary: 'Create a buy request (public; guest allowed; 24h duplicate window)', security: publicReq, requestBody: jsonBody(ref('BuyRequestCreateInput'), true), responses: { 201: created('BuyRequest'), ...E(400, 404, 409, 500) } },
-  get: { tags: ['Buy Requests'], summary: 'List buy requests (admin/employee)', security: bearer, parameters: [
+  get: { tags: ['Buy Requests'], summary: 'List buy requests (admin only)', security: bearer, parameters: [
     param('status', 'query', { schema: { type: 'string', enum: ['NEW','CONTACTED','TEST_DRIVE_SCHEDULED','NEGOTIATION','CLOSED_WON','CLOSED_LOST'] } }),
     param('vehicle', 'query'), param('assignedTo', 'query'), param('q', 'query'), sortParam, ...pageParams,
   ], responses: { 200: ok('BuyRequest', { array: true, paginated: true }), ...E(401, 403, 500) } },
@@ -251,15 +251,15 @@ paths[`${API}/buy-requests/mine`] = { get: {
   responses: { 200: ok('BuyRequest', { array: true }), ...E(401, 500) },
 }};
 paths[`${API}/buy-requests/:id`] = { get: {
-  tags: ['Buy Requests'], summary: 'Get a buy request by id (admin/employee)', security: bearer, parameters: [idParam()],
+  tags: ['Buy Requests'], summary: 'Get a buy request by id (admin only)', security: bearer, parameters: [idParam()],
   responses: { 200: ok('BuyRequest'), ...E(401, 403, 404, 500) },
 }};
-paths[`${API}/buy-requests/:id`].patch = { tags: ['Buy Requests'], summary: 'Update buy request status / assign / add note (admin/employee)', security: bearer, parameters: [idParam()], requestBody: jsonBody(ref('BuyRequestUpdateInput'), true), responses: { 200: ok('BuyRequest'), ...E(400, 401, 403, 404, 500) } };
+paths[`${API}/buy-requests/:id`].patch = { tags: ['Buy Requests'], summary: 'Update buy request status / assign / add note (admin only)', security: bearer, parameters: [idParam()], requestBody: jsonBody(ref('BuyRequestUpdateInput'), true), responses: { 200: ok('BuyRequest'), ...E(400, 401, 403, 404, 500) } };
 
 // ===== Sell Requests =====
 paths[`${API}/sell-requests`] = {
   post: { tags: ['Sell Requests'], summary: 'Create a sell request (public; guest allowed; photos optional)', security: publicReq, requestBody: jsonBody(ref('SellRequestCreateInput'), true), responses: { 201: created('SellRequest'), ...E(400, 500) } },
-  get: { tags: ['Sell Requests'], summary: 'List sell requests (admin/employee)', security: bearer, parameters: [
+  get: { tags: ['Sell Requests'], summary: 'List sell requests (admin only)', security: bearer, parameters: [
     param('status', 'query', { schema: { type: 'string', enum: ['SUBMITTED','UNDER_REVIEW','INSPECTION_SCHEDULED','INSPECTED','OFFER_MADE','ACCEPTED','REJECTED','NEGOTIATING','LISTED','CLOSED'] } }),
     param('category', 'query'), param('assignedTo', 'query'), param('q', 'query'), sortParam, ...pageParams,
   ], responses: { 200: ok('SellRequest', { array: true, paginated: true }), ...E(401, 403, 500) } },
@@ -271,8 +271,8 @@ paths[`${API}/sell-requests/track`] = { get: {
   responses: { 200: ok('SellRequest', { array: true }), ...E(400, 500) },
 }};
 paths[`${API}/sell-requests/:id`] = {
-  get: { tags: ['Sell Requests'], summary: 'Get a sell request by id (admin/employee)', security: bearer, parameters: [idParam()], responses: { 200: ok('SellRequest'), ...E(401, 403, 404, 500) } },
-  patch: { tags: ['Sell Requests'], summary: 'Advance pipeline / set offer / inspection / notes (admin/employee)', security: bearer, parameters: [idParam()], requestBody: jsonBody(ref('SellRequestUpdateInput'), true), responses: { 200: ok('SellRequest'), ...E(400, 401, 403, 404, 500) } },
+  get: { tags: ['Sell Requests'], summary: 'Get a sell request by id (admin only)', security: bearer, parameters: [idParam()], responses: { 200: ok('SellRequest'), ...E(401, 403, 404, 500) } },
+  patch: { tags: ['Sell Requests'], summary: 'Advance pipeline / set offer / inspection / notes (admin only)', security: bearer, parameters: [idParam()], requestBody: jsonBody(ref('SellRequestUpdateInput'), true), responses: { 200: ok('SellRequest'), ...E(400, 401, 403, 404, 500) } },
 };
 paths[`${API}/sell-requests/:id/convert`] = { post: {
   tags: ['Sell Requests'], summary: 'Convert sell request to an ACTIVE listing (admin/employee; requires price)', security: bearer,
@@ -290,47 +290,47 @@ paths[`${API}/wishlist/:vehicleId`] = {
 // ===== Master =====
 paths[`${API}/master/brands`] = {
   get: { tags: ['Master'], summary: 'List brands (public; ?category=, ?q=)', security: publicReq, parameters: [param('category', 'query'), param('q', 'query'), param('isActive', 'query', { schema: { type: 'boolean' } })], responses: { 200: ok('Brand', { array: true }), ...E(500) } },
-  post: { tags: ['Master'], summary: 'Create a brand (admin/employee)', security: bearer, requestBody: jsonBody(ref('BrandInput'), true), responses: { 201: created('Brand'), ...E(400, 401, 403, 409, 500) } },
+  post: { tags: ['Master'], summary: 'Create a brand (admin only)', security: bearer, requestBody: jsonBody(ref('BrandInput'), true), responses: { 201: created('Brand'), ...E(400, 401, 403, 409, 500) } },
 };
 paths[`${API}/master/brands/:id`] = {
-  put: { tags: ['Master'], summary: 'Update a brand (admin/employee)', security: bearer, parameters: [idParam()], requestBody: jsonBody(ref('BrandInput'), true), responses: { 200: ok('Brand'), ...E(400, 401, 403, 404, 500) } },
-  delete: { tags: ['Master'], summary: 'Delete a brand (admin/employee)', security: bearer, parameters: [idParam()], responses: { 200: okWrap(ref('MessageOnly')), ...E(401, 403, 404, 500) } },
+  put: { tags: ['Master'], summary: 'Update a brand (admin only)', security: bearer, parameters: [idParam()], requestBody: jsonBody(ref('BrandInput'), true), responses: { 200: ok('Brand'), ...E(400, 401, 403, 404, 500) } },
+  delete: { tags: ['Master'], summary: 'Delete a brand (admin only)', security: bearer, parameters: [idParam()], responses: { 200: okWrap(ref('MessageOnly')), ...E(401, 403, 404, 500) } },
 };
 const masterListGet = (res, tag) => ({ get: { tags: ['Master'], summary: `List ${tag} (public)`, security: publicReq, parameters: [param('category', 'query'), param('brandId', 'query'), param('q', 'query'), param('isActive', 'query', { schema: { type: 'boolean' } })], responses: { 200: ok(res, { array: true }), ...E(500) } } });
 paths[`${API}/master/models`] = {
   ...masterListGet('VehicleModel', 'vehicle models'),
-  post: { tags: ['Master'], summary: 'Create a vehicle model (admin/employee)', security: bearer, requestBody: jsonBody(ref('VehicleModelInput'), true), responses: { 201: created('VehicleModel'), ...E(400, 401, 403, 409, 500) } },
+  post: { tags: ['Master'], summary: 'Create a vehicle model (admin only)', security: bearer, requestBody: jsonBody(ref('VehicleModelInput'), true), responses: { 201: created('VehicleModel'), ...E(400, 401, 403, 409, 500) } },
 };
 paths[`${API}/master/models/:id`] = {
-  put: { tags: ['Master'], summary: 'Update a vehicle model (admin/employee)', security: bearer, parameters: [idParam()], requestBody: jsonBody(ref('VehicleModelInput'), true), responses: { 200: ok('VehicleModel'), ...E(400, 401, 403, 404, 500) } },
-  delete: { tags: ['Master'], summary: 'Delete a vehicle model (admin/employee)', security: bearer, parameters: [idParam()], responses: { 200: okWrap(ref('MessageOnly')), ...E(401, 403, 404, 500) } },
+  put: { tags: ['Master'], summary: 'Update a vehicle model (admin only)', security: bearer, parameters: [idParam()], requestBody: jsonBody(ref('VehicleModelInput'), true), responses: { 200: ok('VehicleModel'), ...E(400, 401, 403, 404, 500) } },
+  delete: { tags: ['Master'], summary: 'Delete a vehicle model (admin only)', security: bearer, parameters: [idParam()], responses: { 200: okWrap(ref('MessageOnly')), ...E(401, 403, 404, 500) } },
 };
 paths[`${API}/master/locations`] = {
   ...masterListGet('Location', 'locations'),
-  post: { tags: ['Master'], summary: 'Create a location (admin/employee)', security: bearer, requestBody: jsonBody(ref('LocationInput'), true), responses: { 201: created('Location'), ...E(400, 401, 403, 409, 500) } },
+  post: { tags: ['Master'], summary: 'Create a location (admin only)', security: bearer, requestBody: jsonBody(ref('LocationInput'), true), responses: { 201: created('Location'), ...E(400, 401, 403, 409, 500) } },
 };
 paths[`${API}/master/locations/:id`] = {
-  put: { tags: ['Master'], summary: 'Update a location (admin/employee)', security: bearer, parameters: [idParam()], requestBody: jsonBody(ref('LocationInput'), true), responses: { 200: ok('Location'), ...E(400, 401, 403, 404, 500) } },
-  delete: { tags: ['Master'], summary: 'Delete a location (admin/employee)', security: bearer, parameters: [idParam()], responses: { 200: okWrap(ref('MessageOnly')), ...E(401, 403, 404, 500) } },
+  put: { tags: ['Master'], summary: 'Update a location (admin only)', security: bearer, parameters: [idParam()], requestBody: jsonBody(ref('LocationInput'), true), responses: { 200: ok('Location'), ...E(400, 401, 403, 404, 500) } },
+  delete: { tags: ['Master'], summary: 'Delete a location (admin only)', security: bearer, parameters: [idParam()], responses: { 200: okWrap(ref('MessageOnly')), ...E(401, 403, 404, 500) } },
 };
 paths[`${API}/master/features`] = {
   ...masterListGet('Feature', 'features'),
-  post: { tags: ['Master'], summary: 'Create a feature (admin/employee)', security: bearer, requestBody: jsonBody(ref('FeatureInput'), true), responses: { 201: created('Feature'), ...E(400, 401, 403, 409, 500) } },
+  post: { tags: ['Master'], summary: 'Create a feature (admin only)', security: bearer, requestBody: jsonBody(ref('FeatureInput'), true), responses: { 201: created('Feature'), ...E(400, 401, 403, 409, 500) } },
 };
 paths[`${API}/master/features/:id`] = {
-  put: { tags: ['Master'], summary: 'Update a feature (admin/employee)', security: bearer, parameters: [idParam()], requestBody: jsonBody(ref('FeatureInput'), true), responses: { 200: ok('Feature'), ...E(400, 401, 403, 404, 500) } },
-  delete: { tags: ['Master'], summary: 'Delete a feature (admin/employee)', security: bearer, parameters: [idParam()], responses: { 200: okWrap(ref('MessageOnly')), ...E(401, 403, 404, 500) } },
+  put: { tags: ['Master'], summary: 'Update a feature (admin only)', security: bearer, parameters: [idParam()], requestBody: jsonBody(ref('FeatureInput'), true), responses: { 200: ok('Feature'), ...E(400, 401, 403, 404, 500) } },
+  delete: { tags: ['Master'], summary: 'Delete a feature (admin only)', security: bearer, parameters: [idParam()], responses: { 200: okWrap(ref('MessageOnly')), ...E(401, 403, 404, 500) } },
 };
 
 // ===== Chat =====
 paths[`${API}/chat/tickets`] = {
   post: { tags: ['Chat'], summary: 'Create a support chat ticket (auth)', security: bearer, requestBody: jsonBody(ref('ChatTicketCreateInput'), true), responses: { 201: created('ChatTicket'), ...E(400, 401, 500) } },
-  get: { tags: ['Chat'], summary: 'List all tickets (admin/employee)', security: bearer, parameters: [param('status', 'query', { schema: { type: 'string', enum: ['OPEN','IN_PROGRESS','RESOLVED','CLOSED'] } }), param('assignedTo', 'query'), ...pageParams], responses: { 200: ok('ChatTicket', { array: true, paginated: true }), ...E(401, 403, 500) } },
+  get: { tags: ['Chat'], summary: 'List all tickets (admin only)', security: bearer, parameters: [param('status', 'query', { schema: { type: 'string', enum: ['OPEN','IN_PROGRESS','RESOLVED','CLOSED'] } }), param('assignedTo', 'query'), ...pageParams], responses: { 200: ok('ChatTicket', { array: true, paginated: true }), ...E(401, 403, 500) } },
 };
 paths[`${API}/chat/tickets/mine`] = { get: { tags: ['Chat'], summary: 'List own tickets', security: bearer, responses: { 200: ok('ChatTicket', { array: true }), ...E(401, 500) } } };
 paths[`${API}/chat/tickets/:id`] = {
   get: { tags: ['Chat'], summary: 'Get a ticket by id', security: bearer, parameters: [idParam()], responses: { 200: ok('ChatTicket'), ...E(401, 403, 404, 500) } },
-  patch: { tags: ['Chat'], summary: 'Update ticket status / assign (admin/employee)', security: bearer, parameters: [idParam()], requestBody: jsonBody(ref('ChatTicketUpdateInput'), true), responses: { 200: ok('ChatTicket'), ...E(400, 401, 403, 404, 500) } },
+  patch: { tags: ['Chat'], summary: 'Update ticket status / assign (admin only)', security: bearer, parameters: [idParam()], requestBody: jsonBody(ref('ChatTicketUpdateInput'), true), responses: { 200: ok('ChatTicket'), ...E(400, 401, 403, 404, 500) } },
 };
 paths[`${API}/chat/tickets/:id/messages`] = {
   get: { tags: ['Chat'], summary: 'List messages of a ticket', security: bearer, parameters: [idParam()], responses: { 200: ok('ChatMessage', { array: true }), ...E(401, 403, 404, 500) } },
@@ -345,9 +345,9 @@ paths[`${API}/chat/tickets/:id/read`] = { patch: { tags: ['Chat'], summary: 'Mar
 
 // ===== Admin =====
 paths[`${API}/admin/dashboard`] = { get: { tags: ['Admin'], summary: 'Dashboard stats, counts and activity feed (admin/employee)', security: bearer, responses: { 200: ok('Dashboard'), ...E(401, 403, 500) } } };
-paths[`${API}/admin/users`] = { get: { tags: ['Admin'], summary: 'List users (admin/employee)', security: bearer, parameters: [param('role', 'query', { schema: { type: 'string', enum: ['USER','EMPLOYEE','ADMIN'] } }), param('q', 'query'), param('isActive', 'query', { schema: { type: 'boolean' } }), ...pageParams], responses: { 200: ok('User', { array: true, paginated: true }), ...E(401, 403, 500) } } };
+paths[`${API}/admin/users`] = { get: { tags: ['Admin'], summary: 'List users (admin only)', security: bearer, parameters: [param('role', 'query', { schema: { type: 'string', enum: ['USER','EMPLOYEE','ADMIN'] } }), param('q', 'query'), param('isActive', 'query', { schema: { type: 'boolean' } }), ...pageParams], responses: { 200: ok('User', { array: true, paginated: true }), ...E(401, 403, 500) } } };
 paths[`${API}/admin/users/:id`] = {
-  get: { tags: ['Admin'], summary: 'Get a user by id (admin/employee)', security: bearer, parameters: [idParam()], responses: { 200: ok('User'), ...E(401, 403, 404, 500) } },
+  get: { tags: ['Admin'], summary: 'Get a user by id (admin only)', security: bearer, parameters: [idParam()], responses: { 200: ok('User'), ...E(401, 403, 404, 500) } },
   patch: { tags: ['Admin'], summary: 'Update user role / active status (admin only)', security: bearer, parameters: [idParam()], requestBody: jsonBody(ref('AdminUserUpdateInput'), true), responses: { 200: ok('User'), ...E(400, 401, 403, 404, 500) } },
 };
 paths[`${API}/admin/notifications`] = { get: { tags: ['Admin'], summary: 'List admin notifications', security: bearer, parameters: [...pageParams], responses: { 200: ok('Notification', { array: true, paginated: true }), ...E(401, 403, 500) } } };
@@ -357,36 +357,36 @@ paths[`${API}/admin/notifications/read-all`] = { patch: { tags: ['Admin'], summa
 // ===== Content =====
 paths[`${API}/content/banners`] = {
   get: { tags: ['Content'], summary: 'List banners (public; ?position=, ?isActive=)', security: publicReq, parameters: [param('position', 'query', { schema: { type: 'string', enum: ['HERO','SELL_STRIP','CATEGORIES','FOOTER'] } }), param('isActive', 'query', { schema: { type: 'boolean' } })], responses: { 200: ok('Banner', { array: true }), ...E(500) } },
-  post: { tags: ['Content'], summary: 'Create a banner (admin/employee)', security: bearer, requestBody: jsonBody(ref('BannerInput'), true), responses: { 201: created('Banner'), ...E(400, 401, 403, 500) } },
+  post: { tags: ['Content'], summary: 'Create a banner (admin only)', security: bearer, requestBody: jsonBody(ref('BannerInput'), true), responses: { 201: created('Banner'), ...E(400, 401, 403, 500) } },
 };
 paths[`${API}/content/banners/:id`] = {
-  put: { tags: ['Content'], summary: 'Update a banner (admin/employee)', security: bearer, parameters: [idParam()], requestBody: jsonBody(ref('BannerInput'), true), responses: { 200: ok('Banner'), ...E(400, 401, 403, 404, 500) } },
-  delete: { tags: ['Content'], summary: 'Delete a banner (admin/employee)', security: bearer, parameters: [idParam()], responses: { 200: okWrap(ref('MessageOnly')), ...E(401, 403, 404, 500) } },
+  put: { tags: ['Content'], summary: 'Update a banner (admin only)', security: bearer, parameters: [idParam()], requestBody: jsonBody(ref('BannerInput'), true), responses: { 200: ok('Banner'), ...E(400, 401, 403, 404, 500) } },
+  delete: { tags: ['Content'], summary: 'Delete a banner (admin only)', security: bearer, parameters: [idParam()], responses: { 200: okWrap(ref('MessageOnly')), ...E(401, 403, 404, 500) } },
 };
 paths[`${API}/content/testimonials`] = {
   get: { tags: ['Content'], summary: 'List testimonials (public)', security: publicReq, parameters: [param('isActive', 'query', { schema: { type: 'boolean' } })], responses: { 200: ok('Testimonial', { array: true }), ...E(500) } },
-  post: { tags: ['Content'], summary: 'Create a testimonial (admin/employee)', security: bearer, requestBody: jsonBody(ref('TestimonialInput'), true), responses: { 201: created('Testimonial'), ...E(400, 401, 403, 500) } },
+  post: { tags: ['Content'], summary: 'Create a testimonial (admin only)', security: bearer, requestBody: jsonBody(ref('TestimonialInput'), true), responses: { 201: created('Testimonial'), ...E(400, 401, 403, 500) } },
 };
 paths[`${API}/content/testimonials/:id`] = {
-  put: { tags: ['Content'], summary: 'Update a testimonial (admin/employee)', security: bearer, parameters: [idParam()], requestBody: jsonBody(ref('TestimonialInput'), true), responses: { 200: ok('Testimonial'), ...E(400, 401, 403, 404, 500) } },
-  delete: { tags: ['Content'], summary: 'Delete a testimonial (admin/employee)', security: bearer, parameters: [idParam()], responses: { 200: okWrap(ref('MessageOnly')), ...E(401, 403, 404, 500) } },
+  put: { tags: ['Content'], summary: 'Update a testimonial (admin only)', security: bearer, parameters: [idParam()], requestBody: jsonBody(ref('TestimonialInput'), true), responses: { 200: ok('Testimonial'), ...E(400, 401, 403, 404, 500) } },
+  delete: { tags: ['Content'], summary: 'Delete a testimonial (admin only)', security: bearer, parameters: [idParam()], responses: { 200: okWrap(ref('MessageOnly')), ...E(401, 403, 404, 500) } },
 };
 paths[`${API}/content/faqs`] = { get: { tags: ['Content'], summary: 'Public FAQ tree (categories with articles)', security: publicReq, responses: { 200: ok('FaqCategoryWithArticles', { array: true }), ...E(500) } } };
 paths[`${API}/content/faq-categories`] = {
   get: { tags: ['Content'], summary: 'List FAQ categories', security: publicReq, responses: { 200: ok('FaqCategory', { array: true }), ...E(500) } },
-  post: { tags: ['Content'], summary: 'Create FAQ category (admin/employee)', security: bearer, requestBody: jsonBody(ref('FaqCategoryInput'), true), responses: { 201: created('FaqCategory'), ...E(400, 401, 403, 500) } },
+  post: { tags: ['Content'], summary: 'Create FAQ category (admin only)', security: bearer, requestBody: jsonBody(ref('FaqCategoryInput'), true), responses: { 201: created('FaqCategory'), ...E(400, 401, 403, 500) } },
 };
 paths[`${API}/content/faq-categories/:id`] = {
-  put: { tags: ['Content'], summary: 'Update FAQ category (admin/employee)', security: bearer, parameters: [idParam()], requestBody: jsonBody(ref('FaqCategoryInput'), true), responses: { 200: ok('FaqCategory'), ...E(400, 401, 403, 404, 500) } },
-  delete: { tags: ['Content'], summary: 'Delete FAQ category (admin/employee)', security: bearer, parameters: [idParam()], responses: { 200: okWrap(ref('MessageOnly')), ...E(401, 403, 404, 500) } },
+  put: { tags: ['Content'], summary: 'Update FAQ category (admin only)', security: bearer, parameters: [idParam()], requestBody: jsonBody(ref('FaqCategoryInput'), true), responses: { 200: ok('FaqCategory'), ...E(400, 401, 403, 404, 500) } },
+  delete: { tags: ['Content'], summary: 'Delete FAQ category (admin only)', security: bearer, parameters: [idParam()], responses: { 200: okWrap(ref('MessageOnly')), ...E(401, 403, 404, 500) } },
 };
 paths[`${API}/content/faq-articles`] = {
   get: { tags: ['Content'], summary: 'List FAQ articles (?category=)', security: publicReq, parameters: [param('category', 'query')], responses: { 200: ok('FaqArticle', { array: true }), ...E(500) } },
-  post: { tags: ['Content'], summary: 'Create FAQ article (admin/employee)', security: bearer, requestBody: jsonBody(ref('FaqArticleInput'), true), responses: { 201: created('FaqArticle'), ...E(400, 401, 403, 500) } },
+  post: { tags: ['Content'], summary: 'Create FAQ article (admin only)', security: bearer, requestBody: jsonBody(ref('FaqArticleInput'), true), responses: { 201: created('FaqArticle'), ...E(400, 401, 403, 500) } },
 };
 paths[`${API}/content/faq-articles/:id`] = {
-  put: { tags: ['Content'], summary: 'Update FAQ article (admin/employee)', security: bearer, parameters: [idParam()], requestBody: jsonBody(ref('FaqArticleInput'), true), responses: { 200: ok('FaqArticle'), ...E(400, 401, 403, 404, 500) } },
-  delete: { tags: ['Content'], summary: 'Delete FAQ article (admin/employee)', security: bearer, parameters: [idParam()], responses: { 200: okWrap(ref('MessageOnly')), ...E(401, 403, 404, 500) } },
+  put: { tags: ['Content'], summary: 'Update FAQ article (admin only)', security: bearer, parameters: [idParam()], requestBody: jsonBody(ref('FaqArticleInput'), true), responses: { 200: ok('FaqArticle'), ...E(400, 401, 403, 404, 500) } },
+  delete: { tags: ['Content'], summary: 'Delete FAQ article (admin only)', security: bearer, parameters: [idParam()], responses: { 200: okWrap(ref('MessageOnly')), ...E(401, 403, 404, 500) } },
 };
 paths[`${API}/content/site-settings`] = {
   get: { tags: ['Content'], summary: 'Get site settings (public)', security: publicReq, responses: { 200: ok('SiteSetting'), ...E(500) } },
@@ -400,9 +400,9 @@ paths[`${API}/content/seo-settings`] = {
 paths[`${API}/content/seo-settings/:id`] = { delete: { tags: ['Content'], summary: 'Delete an SEO setting (admin only)', security: bearer, parameters: [idParam()], responses: { 200: okWrap(ref('MessageOnly')), ...E(401, 403, 404, 500) } } };
 paths[`${API}/content/contacts`] = {
   post: { tags: ['Content'], summary: 'Submit a contact message (public)', security: publicReq, requestBody: jsonBody(ref('ContactInput'), true), responses: { 201: created('Contact'), ...E(400, 500) } },
-  get: { tags: ['Content'], summary: 'List contact messages (admin/employee)', security: bearer, parameters: [param('status', 'query', { schema: { type: 'string', enum: ['NEW','IN_PROGRESS','RESOLVED'] } }), ...pageParams], responses: { 200: ok('Contact', { array: true, paginated: true }), ...E(401, 403, 500) } },
+  get: { tags: ['Content'], summary: 'List contact messages (admin only)', security: bearer, parameters: [param('status', 'query', { schema: { type: 'string', enum: ['NEW','IN_PROGRESS','RESOLVED'] } }), ...pageParams], responses: { 200: ok('Contact', { array: true, paginated: true }), ...E(401, 403, 500) } },
 };
-paths[`${API}/content/contacts/:id`] = { patch: { tags: ['Content'], summary: 'Update contact status / admin notes (admin/employee)', security: bearer, parameters: [idParam()], requestBody: jsonBody(ref('ContactUpdateInput'), true), responses: { 200: ok('Contact'), ...E(400, 401, 403, 404, 500) } } };
+paths[`${API}/content/contacts/:id`] = { patch: { tags: ['Content'], summary: 'Update contact status / admin notes (admin only)', security: bearer, parameters: [idParam()], requestBody: jsonBody(ref('ContactUpdateInput'), true), responses: { 200: ok('Contact'), ...E(400, 401, 403, 404, 500) } } };
 
 // ===== Uploads =====
 paths[`${API}/uploads`] = { post: {
@@ -446,8 +446,8 @@ const schemas = {
   UpdateProfileInput: { type: 'object', properties: { name: { type: 'string', minLength: 2 }, phone: { type: 'string', pattern: '^[6-9]\\d{9}$' }, profileImage: str } },
   ChangePasswordInput: { type: 'object', required: ['currentPassword', 'newPassword'], properties: { currentPassword: str, newPassword: { type: 'string', minLength: 8 } } },
   AuthResult: { type: 'object', properties: { user: ref('User'), accessToken: str, refreshToken: str } },
-  User: { type: 'object', properties: { id: ID, name: str, email: str, phone: NullableStr, role: { type: 'string', enum: ['USER','EMPLOYEE','ADMIN'] }, emailVerified: bool, phoneVerified: bool, profileImage: NullableStr } },
-  AdminUserUpdateInput: { type: 'object', properties: { role: { type: 'string', enum: ['USER','EMPLOYEE','ADMIN'] }, isActive: bool } },
+  User: { type: 'object', properties: { id: ID, name: str, email: str, phone: NullableStr, role: { type: 'string', enum: ['USER','EMPLOYEE','ADMIN'] }, isVendor: bool, companyName: NullableStr, emailVerified: bool, phoneVerified: bool, profileImage: NullableStr } },
+  AdminUserUpdateInput: { type: 'object', properties: { role: { type: 'string', enum: ['USER','EMPLOYEE','ADMIN'] }, isActive: bool, isVendor: bool, companyName: NullableStr } },
 
   // Vehicle
   VehicleImage: { type: 'object', properties: { _id: ID, url: str, s3Key: NullableStr, order: int, isPrimary: bool, tag: { type: 'string', enum: ['EXTERIOR','INTERIOR','ENGINE','ODOMETER','DOCUMENTS','TYRES','FRONT','BACK','SIDE'] } } },
@@ -495,6 +495,8 @@ const schemas = {
       grossVehicleWeightKg: num, payloadCapacityKg: num, unladenWeightKg: num, axleConfiguration: NullableStr, numberOfTyres: int, wheelbaseMm: num, cabinType: NullableStr,
       sleepingCapacity: int, hasKitchenette: bool, hasToilet: bool, hasGenerator: bool, waterTankLitres: num, buildType: NullableStr,
       locationState: str, locationCity: str, locationPincode: str, yardName: NullableStr, sellerType: NullableStr,
+      createdBy: ID,
+      postedBy: { type: 'object', nullable: true, properties: { id: ID, name: str, email: str, isVendor: bool, companyName: NullableStr } },
       createdAt: date, updatedAt: date,
     },
   },

@@ -67,8 +67,9 @@ export const initializeSocket = (httpServer: HttpServer): void => {
       socket.join(`user:${user.id}`);
     }
 
-    // Admin room
-    if (user?.role === 'ADMIN' || user?.role === 'EMPLOYEE') {
+    // Admin room (super admins only — vendor employees do not receive
+    // marketplace-wide request/chat notifications).
+    if (user?.role === 'ADMIN') {
       socket.join('admin:notifications');
     }
 
@@ -79,7 +80,7 @@ export const initializeSocket = (httpServer: HttpServer): void => {
       (async () => {
         try {
           let ticketIds: string[] = [];
-          if (user.role === 'ADMIN' || user.role === 'EMPLOYEE') {
+          if (user.role === 'ADMIN') {
             const tickets = await ChatTicket.find({
               $or: [{ assignedTo: user.id }, { user: user.id }],
             })

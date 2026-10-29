@@ -35,7 +35,7 @@ router.get('/track', sellRequestController.track);
 router.get(
   '/',
   authenticate,
-  requireRole('ADMIN', 'EMPLOYEE'),
+  requireRole('ADMIN'),
   validate({ query: listSellRequestsQuerySchema }),
   sellRequestController.list
 );
@@ -43,7 +43,7 @@ router.get(
 router.get(
   '/:id',
   authenticate,
-  requireRole('ADMIN', 'EMPLOYEE'),
+  requireRole('ADMIN'),
   validate({ params: idParamSchema }),
   sellRequestController.getById
 );
@@ -51,7 +51,7 @@ router.get(
 router.patch(
   '/:id',
   authenticate,
-  requireRole('ADMIN', 'EMPLOYEE'),
+  requireRole('ADMIN'),
   validate({ params: idParamSchema, body: updateSellRequestSchema }),
   sellRequestController.update
 );
@@ -59,7 +59,7 @@ router.patch(
 router.post(
   '/:id/convert',
   authenticate,
-  requireRole('ADMIN', 'EMPLOYEE'),
+  requireRole('ADMIN'),
   validate({ params: idParamSchema, body: convertSellRequestSchema }),
   sellRequestController.convert
 );

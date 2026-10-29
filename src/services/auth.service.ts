@@ -29,6 +29,8 @@ export interface AuthResult {
     name: string;
     email: string;
     role: UserRole;
+    isVendor: boolean;
+    companyName?: string | null;
     emailVerified: boolean;
     phoneVerified: boolean;
     phone?: string;
@@ -79,6 +81,8 @@ const toPublicUser = (user: any): AuthResult['user'] => ({
   name: user.name,
   email: user.email,
   role: user.role,
+  isVendor: !!user.isVendor,
+  companyName: user.companyName,
   emailVerified: !!user.emailVerified,
   phoneVerified: !!user.phoneVerified,
   phone: user.phone,

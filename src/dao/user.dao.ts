@@ -15,6 +15,11 @@ export const create = async (data: Record<string, any>) => {
 
 export const findById = async (id: string) => User.findById(id).lean();
 
+export const findByIds = async (ids: string[]) =>
+  User.find({ _id: { $in: ids }, deletedAt: null })
+    .select('name email role isVendor companyName')
+    .lean();
+
 export const findByEmail = async (email: string) =>
   User.findOne({ email: email.toLowerCase().trim(), deletedAt: null }).lean();
 
@@ -56,6 +61,7 @@ export const countAdmins = async () => User.countDocuments({ role: 'ADMIN', dele
 export default {
   create,
   findById,
+  findByIds,
   findByEmail,
   findByEmailWithPassword,
   findByPhone,

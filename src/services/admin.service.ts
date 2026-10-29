@@ -15,7 +15,10 @@ import { PaginationParams } from '../interfaces/request.interface';
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
-export const getDashboard = async () => {
+export const getDashboard = async (actor: { id: string; role: string }) => {
+  const isAdmin = actor.role === 'ADMIN';
+  const vehicleFilter = isAdmin ? {} : { createdBy: actor.id };
+
   const [
     vehicleStats,
     buyByStatus,
@@ -25,13 +28,13 @@ export const getDashboard = async () => {
     recentBuy,
     recentSell,
   ] = await Promise.all([
-    vehicleDao.aggregateStats(),
-    buyRequestDao.countByStatus('NEW'),
-    sellRequestDao.countPending(),
-    userDao.countAll({}),
-    chatTicketDao.countOpen(),
-    buyRequestDao.findRecent(5),
-    sellRequestDao.findRecent(5),
+    vehicleDao.aggregateStats(vehicleFilter),
+    isAdmin ? buyRequestDao.countByStatus('NEW') : Promise.resolve(0),
+    isAdmin ? sellRequestDao.countPending() : Promise.resolve(0),
+    isAdmin ? userDao.countAll({}) : Promise.resolve(0),
+    isAdmin ? chatTicketDao.countOpen() : Promise.resolve(0),
+    isAdmin ? buyRequestDao.findRecent(5) : Promise.resolve([]),
+    isAdmin ? sellRequestDao.findRecent(5) : Promise.resolve([]),
   ]);
 
   const statusMap: Record<string, number> = {};
@@ -45,32 +48,34 @@ export const getDashboard = async () => {
 
   const since = new Date(Date.now() - WEEK_MS);
   const [vehiclesThisWeek, buyThisWeek, sellThisWeek, usersThisWeek] = await Promise.all([
-    vehicleDao.countAll({ createdAt: { $gte: since } }),
-    buyRequestDao.countAll({ createdAt: { $gte: since } }),
-    sellRequestDao.countAll({ createdAt: { $gte: since } }),
-    userDao.countAll({ createdAt: { $gte: since } }),
+    vehicleDao.countAll({ createdAt: { $gte: since }, ...vehicleFilter }),
+    isAdmin ? buyRequestDao.countAll({ createdAt: { $gte: since } }) : Promise.resolve(0),
+    isAdmin ? sellRequestDao.countAll({ createdAt: { $gte: since } }) : Promise.resolve(0),
+    isAdmin ? userDao.countAll({ createdAt: { $gte: since } }) : Promise.resolve(0),
   ]);
 
-  const activity = [
-    ...recentBuy.map((r: any) => ({
-      type: 'BUY_REQUEST',
-      id: String(r._id),
-      title: `${r.name} requested a buy quote`,
-      subtitle: r.vehicle ? `${r.vehicle.brandName || ''} ${r.vehicle.model || ''}`.trim() : '',
-      at: r.createdAt,
-      link: `/admin/buy-requests/${r._id}`,
-    })),
-    ...recentSell.map((r: any) => ({
-      type: 'SELL_REQUEST',
-      id: String(r._id),
-      title: `${r.name} submitted a sell request`,
-      subtitle: `${r.brandName || ''} ${r.model || ''}`.trim(),
-      at: r.createdAt,
-      link: `/admin/sell-requests/${r._id}`,
-    })),
-  ]
-    .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
-    .slice(0, 8);
+  const activity = !isAdmin
+    ? []
+    : [
+        ...recentBuy.map((r: any) => ({
+          type: 'BUY_REQUEST',
+          id: String(r._id),
+          title: `${r.name} requested a buy quote`,
+          subtitle: r.vehicle ? `${r.vehicle.brandName || ''} ${r.vehicle.model || ''}`.trim() : '',
+          at: r.createdAt,
+          link: `/admin/buy-requests/${r._id}`,
+        })),
+        ...recentSell.map((r: any) => ({
+          type: 'SELL_REQUEST',
+          id: String(r._id),
+          title: `${r.name} submitted a sell request`,
+          subtitle: `${r.brandName || ''} ${r.model || ''}`.trim(),
+          at: r.createdAt,
+          link: `/admin/sell-requests/${r._id}`,
+        })),
+      ]
+        .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
+        .slice(0, 8);
 
   return {
     vehicles: {
@@ -140,6 +145,22 @@ export const updateUser = async (
   if (data.isActive !== undefined) patch.isActive = data.isActive;
   if (data.name) patch.name = data.name;
   if (data.phone) patch.phone = data.phone;
+
+  const nextRole = data.role ?? user.role;
+  const nextIsVendor =
+    nextRole === 'EMPLOYEE' ? (data.isVendor !== undefined ? data.isVendor : !!user.isVendor) : false;
+
+  if (nextRole === 'EMPLOYEE' && nextIsVendor) {
+    const companyName = String(data.companyName ?? user.companyName ?? '').trim();
+    if (!companyName) {
+      throw new AppError('Company name is required for vendor employees.', 422);
+    }
+    patch.isVendor = true;
+    patch.companyName = companyName;
+  } else {
+    patch.isVendor = false;
+    patch.companyName = null;
+  }
 
   return userDao.updateById(id, patch);
 };

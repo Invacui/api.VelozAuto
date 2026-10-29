@@ -18,6 +18,8 @@ export interface IUser {
   emailVerified: boolean;
   passwordHash?: string;
   role: 'USER' | 'EMPLOYEE' | 'ADMIN';
+  isVendor: boolean;
+  companyName?: string | null;
   isActive: boolean;
   profileImage?: string;
   deletedAt?: Date | null;
@@ -66,6 +68,8 @@ const UserSchema = new Schema<IUser>(
       enum: ['USER', 'EMPLOYEE', 'ADMIN'],
       default: 'USER',
     },
+    isVendor: { type: Boolean, default: false },
+    companyName: { type: String, trim: true, maxlength: 160 },
     isActive: { type: Boolean, default: true },
     profileImage: { type: String, trim: true },
     deletedAt: { type: Date, default: null, index: true },

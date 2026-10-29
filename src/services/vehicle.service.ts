@@ -9,6 +9,7 @@
 
 import * as vehicleDao from '../dao/vehicle.dao';
 import * as brandDao from '../dao/brand.dao';
+import * as userDao from '../dao/user.dao';
 import { AppError } from '../utils/AppError';
 import { PaginationParams } from '../interfaces/request.interface';
 import logger from '../logger/index';
@@ -19,6 +20,48 @@ import {
 } from '../shared/serializers/vehicle.serializer';
 import { uploadVehicleImage } from './upload.service';
 import { storageService } from '../shared/lib/storage.lib';
+
+export interface StaffActor {
+  id: string;
+  role: string;
+}
+
+const assertVehicleAccess = (vehicle: any, actor: StaffActor) => {
+  if (actor.role === 'ADMIN') return;
+  if (String(vehicle.createdBy) !== actor.id) {
+    throw new AppError('You do not have access to this vehicle.', 403);
+  }
+};
+
+const toPostedBy = (owner: any) =>
+  owner
+    ? {
+        id: String(owner._id),
+        name: owner.name,
+        email: owner.email,
+        isVendor: !!owner.isVendor,
+        companyName: owner.companyName ?? null,
+      }
+    : null;
+
+const attachPostedBy = async (vehicle: any) => {
+  const out = toStaffVehicle(vehicle);
+  out.postedBy = out?.createdBy
+    ? toPostedBy(await userDao.findById(String(out.createdBy)))
+    : null;
+  return out;
+};
+
+const attachPostedByList = async (vehicles: any[]) => {
+  const ids = [...new Set(vehicles.map((v) => String(v.createdBy || '')).filter(Boolean))];
+  const owners = ids.length ? await userDao.findByIds(ids) : [];
+  const ownersById = new Map(owners.map((owner) => [String(owner._id), owner]));
+  return vehicles.map((vehicle) => {
+    const out = toStaffVehicle(vehicle);
+    out.postedBy = toPostedBy(ownersById.get(String(vehicle.createdBy || '')));
+    return out;
+  });
+};
 
 const REQUIRED_BY_CATEGORY: Record<string, string[]> = {
   COMMERCIAL: ['subCategory'],
@@ -122,9 +165,14 @@ export const createVehicle = async (data: Record<string, any>, userId: string) =
   return toStaffVehicle(created);
 };
 
-export const updateVehicle = async (id: string, data: Record<string, any>) => {
+export const updateVehicle = async (
+  id: string,
+  data: Record<string, any>,
+  actor: StaffActor
+) => {
   const existing = await vehicleDao.findByIdFull(id);
   if (!existing) throw new AppError('Vehicle not found.', 404);
+  assertVehicleAccess(existing, actor);
 
   const prepared = await validateAndPrepare({ ...data });
   delete prepared.createdBy; // never reassign ownership
@@ -139,9 +187,10 @@ export const updateVehicle = async (id: string, data: Record<string, any>) => {
   return toStaffVehicle(updated);
 };
 
-export const updateStatus = async (id: string, status: string) => {
+export const updateStatus = async (id: string, status: string, actor: StaffActor) => {
   const existing = await vehicleDao.findByIdFull(id);
   if (!existing) throw new AppError('Vehicle not found.', 404);
+  assertVehicleAccess(existing, actor);
 
   if (status === 'ACTIVE') {
     if (!existing.images || existing.images.length < 1) {
@@ -153,9 +202,10 @@ export const updateStatus = async (id: string, status: string) => {
   return toStaffVehicle(updated);
 };
 
-export const deleteVehicle = async (id: string) => {
+export const deleteVehicle = async (id: string, actor: StaffActor) => {
   const existing = await vehicleDao.findById(id);
   if (!existing) throw new AppError('Vehicle not found.', 404);
+  assertVehicleAccess(existing, actor);
   await vehicleDao.softDelete(id);
   return { id, deleted: true };
 };
@@ -164,9 +214,15 @@ export const deleteVehicle = async (id: string) => {
 // Media
 // =====================
 
-export const addImages = async (id: string, files: Express.Multer.File[], tags: string[] = []) => {
+export const addImages = async (
+  id: string,
+  files: Express.Multer.File[],
+  tags: string[],
+  actor: StaffActor
+) => {
   const existing = await vehicleDao.findByIdFull(id);
   if (!existing) throw new AppError('Vehicle not found.', 404);
+  assertVehicleAccess(existing, actor);
 
   const current = existing.images || [];
   if (current.length + files.length > 15) {
@@ -191,9 +247,14 @@ export const addImages = async (id: string, files: Express.Multer.File[], tags: 
 };
 
 /** Append images that already exist at a remote URL (no file upload). */
-export const addImagesByUrl = async (id: string, entries: { url: string; tag?: string }[] = []) => {
+export const addImagesByUrl = async (
+  id: string,
+  entries: { url: string; tag?: string }[],
+  actor: StaffActor
+) => {
   const existing = await vehicleDao.findByIdFull(id);
   if (!existing) throw new AppError('Vehicle not found.', 404);
+  assertVehicleAccess(existing, actor);
 
   const current = existing.images || [];
   if (current.length + entries.length > 15) {
@@ -212,9 +273,10 @@ export const addImagesByUrl = async (id: string, entries: { url: string; tag?: s
   return toStaffVehicle(updated);
 };
 
-export const removeImage = async (id: string, imageId: string) => {
+export const removeImage = async (id: string, imageId: string, actor: StaffActor) => {
   const existing = await vehicleDao.findByIdFull(id);
   if (!existing) throw new AppError('Vehicle not found.', 404);
+  assertVehicleAccess(existing, actor);
 
   const images = (existing.images || []).filter((img: any) => String(img._id) !== imageId);
   if (images.length === (existing.images || []).length) {
@@ -258,10 +320,11 @@ export const getPublicById = async (id: string) => {
   return toPublicVehicle(vehicle);
 };
 
-export const getStaffById = async (id: string) => {
+export const getStaffById = async (id: string, actor: StaffActor) => {
   const vehicle = await vehicleDao.findByIdFull(id);
   if (!vehicle) throw new AppError('Vehicle not found.', 404);
-  return toStaffVehicle(vehicle);
+  assertVehicleAccess(vehicle, actor);
+  return attachPostedBy(vehicle);
 };
 
 export const getSimilar = async (id: string, limit = 6) => {
@@ -341,16 +404,20 @@ export const listVehicles = async (query: Record<string, any> = {}) => {
   return { data: data.map(toVehicleCard), totalItems, page, limit };
 };
 
-export const listAdminVehicles = async (query: Record<string, any> = {}) => {
+export const listAdminVehicles = async (
+  query: Record<string, any> = {},
+  actor: StaffActor
+) => {
   const page = Number(query.page) || 1;
   const limit = Number(query.limit) || 20;
   const filter = buildFilter(query, false);
   if (query.includeDeleted) delete filter.deletedAt;
   else filter.deletedAt = null;
+  if (actor.role !== 'ADMIN') filter.createdBy = actor.id;
 
   const data = await vehicleDao.findMany(filter, { page, limit, sort: query.sort || 'newest' }, vehicleDao.LIST_FIELDS);
   const totalItems = await vehicleDao.countAll(filter);
-  return { data: data.map(toStaffVehicle), totalItems, page, limit };
+  return { data: await attachPostedByList(data), totalItems, page, limit };
 };
 
 export const getFeatured = async (limit = 8) => {

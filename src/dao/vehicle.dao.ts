@@ -32,7 +32,7 @@ export const LIST_FIELDS =
   'category usageType subCategory bodyType brandName model variant manufacturingYear ' +
   'fuelType transmission kmDriven ownerCount price isPriceNegotiable emiStartingFrom ' +
   'images slug status isFeatured views isInspected registrationState locationCity locationState ' +
-  'bsNorm createdAt';
+  'bsNorm createdAt createdBy';
 
 export const findById = async (id: string) => Vehicle.findById(id).lean();
 
@@ -104,18 +104,19 @@ export const findSimilar = async (
 export const distinctValues = async (field: string, filter: Record<string, any> = {}) =>
   Vehicle.distinct(field, { deletedAt: null, status: 'ACTIVE', ...filter });
 
-export const aggregateStats = async () => {
+export const aggregateStats = async (filter: Record<string, any> = {}) => {
+  const match = { deletedAt: null, ...filter };
   const [byStatus, byCategory, totals] = await Promise.all([
     Vehicle.aggregate([
-      { $match: { deletedAt: null } },
+      { $match: match },
       { $group: { _id: '$status', count: { $sum: 1 } } },
     ]),
     Vehicle.aggregate([
-      { $match: { deletedAt: null } },
+      { $match: match },
       { $group: { _id: '$category', count: { $sum: 1 } } },
     ]),
     Vehicle.aggregate([
-      { $match: { deletedAt: null } },
+      { $match: match },
       {
         $group: {
           _id: null,

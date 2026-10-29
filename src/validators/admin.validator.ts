@@ -19,6 +19,9 @@ export const updateUserSchema = Joi.object({
   role: Joi.string().valid('USER', 'EMPLOYEE', 'ADMIN').optional(),
   isActive: Joi.boolean().optional(),
   name: Joi.string().trim().min(2).max(120).optional(),
+  phone: Joi.string().trim().optional().allow('', null),
+  isVendor: Joi.boolean().optional(),
+  companyName: Joi.string().trim().max(160).optional().allow('', null),
 }).min(1);
 
 export const dashboardQuerySchema = Joi.object({
