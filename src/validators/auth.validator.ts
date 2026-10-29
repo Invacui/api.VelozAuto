@@ -23,10 +23,12 @@ export const registerSchema = Joi.object({
 });
 
 export const loginSchema = Joi.object({
-  email: Joi.string().email().lowercase().trim().required(),
-  password: Joi.string().required(),
+  email: Joi.string().email().lowercase().trim().optional(),
   phone: phoneSchema.optional(),
-});
+  password: Joi.string().required(),
+})
+  .or('email', 'phone')
+  .messages({ 'object.missing': 'email or phone is required' });
 
 export const googleSchema = Joi.object({
   credential: Joi.string().min(20).max(10000).required(),

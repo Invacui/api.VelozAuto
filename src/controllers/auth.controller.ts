@@ -25,8 +25,8 @@ export const register = asyncHandler(async (req: AuthenticatedRequest, res: Resp
 });
 
 export const login = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { email, password, phone } = req.body;
-  const result = await authService.login(email, password, phone);
+  const { email, phone, password } = req.body;
+  const result = await authService.login({ email, phone }, password);
   setAuthCookies(res, result.accessToken, result.refreshToken);
   successResponse(
     res,

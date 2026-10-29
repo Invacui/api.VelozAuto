@@ -9290,9 +9290,9 @@
       "LoginInput": {
         "type": "object",
         "required": [
-          "email",
           "password"
         ],
+        "description": "Provide either email or phone.",
         "properties": {
           "email": {
             "type": "string",
@@ -9305,7 +9305,19 @@
           "password": {
             "type": "string"
           }
-        }
+        },
+        "oneOf": [
+          {
+            "required": [
+              "email"
+            ]
+          },
+          {
+            "required": [
+              "phone"
+            ]
+          }
+        ]
       },
       "GoogleSignInInput": {
         "type": "object",

@@ -435,7 +435,7 @@ const schemas = {
 
   // Auth
   RegisterInput: { type: 'object', required: ['name', 'email', 'password'], properties: { name: { type: 'string', minLength: 2 }, email: { type: 'string', format: 'email' }, phone: { type: 'string', pattern: '^[6-9]\\d{9}$' }, password: { type: 'string', minLength: 8 } } },
-  LoginInput: { type: 'object', required: ['email', 'password'], properties: { email: { type: 'string', format: 'email' }, phone: { type: 'string', pattern: '^[6-9]\\d{9}$' }, password: { type: 'string' } } },
+  LoginInput: { type: 'object', required: ['password'], description: 'Provide either email or phone.', properties: { email: { type: 'string', format: 'email' }, phone: { type: 'string', pattern: '^[6-9]\\d{9}$' }, password: { type: 'string' } }, oneOf: [{ required: ['email'] }, { required: ['phone'] }] },
   GoogleSignInInput: { type: 'object', required: ['credential'], properties: { credential: { type: 'string' } } },
   SendPhoneOtpInput: { type: 'object', properties: { phone: { type: 'string', pattern: '^[6-9]\\d{9}$' } } },
   VerifyPhoneOtpInput: { type: 'object', required: ['code'], properties: { code: { type: 'string', pattern: '^\\d{6}$' } } },

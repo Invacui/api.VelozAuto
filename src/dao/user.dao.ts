@@ -26,6 +26,9 @@ export const findByEmailWithPassword = async (email: string) =>
 export const findByPhone = async (phone: string) =>
   User.findOne({ phone, deletedAt: null }).lean();
 
+export const findByPhoneWithPassword = async (phone: string) =>
+  User.findOne({ phone, deletedAt: null }).select('+passwordHash').lean();
+
 export const updateById = async (id: string, data: Record<string, any>) =>
   User.findByIdAndUpdate(id, { $set: data }, { new: true, runValidators: true }).lean();
 
@@ -56,6 +59,7 @@ export default {
   findByEmail,
   findByEmailWithPassword,
   findByPhone,
+  findByPhoneWithPassword,
   updateById,
   findAll,
   countAll,

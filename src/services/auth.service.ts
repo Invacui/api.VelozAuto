@@ -144,10 +144,17 @@ export const register = async (
 // Login
 // =====================
 
-export const login = async (email: string, password: string, phone?: string): Promise<AuthResult> => {
-  const user = await userDao.findByEmailWithPassword(email);
+export const login = async (
+  credentials: { email?: string; phone?: string },
+  password: string
+): Promise<AuthResult> => {
+  const normalizedPhone = credentials.phone ? normalizePhone(credentials.phone) : '';
+  const user = normalizedPhone
+    ? await userDao.findByPhoneWithPassword(normalizedPhone)
+    : await userDao.findByEmailWithPassword(String(credentials.email || ''));
+
   if (!user || !user.passwordHash) {
-    throw new AppError('Invalid email or password.', 401);
+    throw new AppError('Invalid email, mobile number or password.', 401);
   }
   if (!user.isActive) {
     throw new AppError('Your account has been deactivated. Please contact support.', 403);
@@ -155,32 +162,10 @@ export const login = async (email: string, password: string, phone?: string): Pr
 
   const ok = await comparePassword(password, user.passwordHash);
   if (!ok) {
-    throw new AppError('Invalid email or password.', 401);
+    throw new AppError('Invalid email, mobile number or password.', 401);
   }
 
-  // Customers can supply/update their mobile number at login. WhatsApp OTP
-  // verification is disabled until Meta is configured, so we only validate
-  // the number format and uniqueness here and leave phoneVerified pending.
-  let authenticated = user;
-  if (phone && user.role === 'USER') {
-    const normalizedPhone = normalizePhone(phone);
-    if (!isValidIndianPhone(normalizedPhone)) {
-      throw new AppError('Enter a valid 10-digit Indian mobile number.', 400);
-    }
-    const owner = await userDao.findByPhone(normalizedPhone);
-    if (owner && String(owner._id) !== String(user._id)) {
-      throw new AppError('This phone number is already in use.', 409);
-    }
-    if (normalizePhone(user.phone || '') !== normalizedPhone) {
-      authenticated =
-        (await userDao.updateById(String(user._id), {
-          phone: normalizedPhone,
-          phoneVerified: false,
-        })) || user;
-    }
-  }
-
-  return issueAuthResult(authenticated);
+  return issueAuthResult(user);
 };
 
 // =====================
