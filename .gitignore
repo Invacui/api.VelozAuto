@@ -1,0 +1,9 @@
+node_modules/
+dist/
+logs/
+uploads/
+environment/*.env
+!environment/development.env
+.env
+*.tsbuildinfo
+coverage/

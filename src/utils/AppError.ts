@@ -1,0 +1,22 @@
+/**
+ * @file AppError.ts
+ * @description Custom application error class extending native Error with an
+ *              HTTP status code and an `isOperational` flag.
+ * @module Utils
+ * @author VehicleMarket Backend
+ */
+
+export class AppError extends Error {
+  public statusCode: number;
+  public isOperational: boolean;
+
+  constructor(message: string, statusCode: number = 500, isOperational: boolean = true) {
+    super(message);
+    this.statusCode = statusCode;
+    this.isOperational = isOperational;
+    Object.setPrototypeOf(this, AppError.prototype);
+    Error.captureStackTrace(this, this.constructor);
+  }
+}
+
+export default AppError;
